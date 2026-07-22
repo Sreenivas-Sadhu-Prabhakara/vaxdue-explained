@@ -1,0 +1,429 @@
+/* ============================================================
+   vaxdue explained — birch & pine. An animated walkthrough.
+   Dark default (deep pine forest) + light (birch paper).
+   Motif: the birch-trunk timeline / lenticel-dash tick marks.
+   All text/badge pairings verified for WCAG-AA in both schemes.
+   ============================================================ */
+
+:root {
+  /* dark (default) — deep pine forest */
+  --bg:        #0F231C;
+  --surface:   #16302650;
+  --surface-s: #183328;
+  --card:      #1B3B2E;
+  --ink:       #EFE9DC;   /* pale birch — ~13:1 on --bg */
+  --muted:     #A9C2B3;   /* ~7:1 on --bg */
+  --rail:      #C9D6C2;   /* pale-birch trunk */
+  --rail-dim:  #46604f;
+  --dash:      #C7CBBE;   /* lenticel charcoal, lifted for dark */
+  --accent:    #6FA98C;   /* spruce-mist */
+  --accent-ink:#0F231C;
+  --line:      #2C4A3B;
+
+  /* status hues — lifted for dark contrast; each also has an icon/text label */
+  --st-done:   #7FC99A;
+  --st-due:    #E8B94E;   /* marigold */
+  --st-over:   #E8845C;   /* clay */
+  --st-up:     #9BB0A2;   /* grey-green */
+  --st-done-bg: #163624;
+  --st-due-bg:  #3a300f;
+  --st-over-bg: #3a2016;
+  --st-up-bg:   #22332a;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Helvetica, Arial, sans-serif;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --wrap: 1000px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --shadow: 0 18px 44px -26px rgba(0,0,0,0.75);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:        #F6F2E9;   /* birch paper */
+    --surface:   #EFE9DA;
+    --surface-s: #ECE4D2;
+    --card:      #FBF7EE;
+    --ink:       #1F4A38;   /* deep pine — ~8:1 on paper */
+    --muted:     #3f5a4b;   /* ~6:1 on paper */
+    --rail:      #C6B79A;   /* birch bark */
+    --rail-dim:  #d9cdb6;
+    --dash:      #3A3A34;   /* lenticel charcoal */
+    --accent:    #2E6B4F;   /* spruce */
+    --accent-ink:#FBF7EE;
+    --line:      #E0D8C4;
+
+    --st-done:   #186640;
+    --st-due:    #785400;
+    --st-over:   #A8451F;
+    --st-up:     #566b5c;
+    --st-done-bg: #E4EEE4;
+    --st-due-bg:  #F3E8CE;
+    --st-over-bg: #F4E1D6;
+    --st-up-bg:   #E8EBE1;
+    --shadow: 0 18px 40px -28px rgba(31,74,56,0.35);
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: -0.003em;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { margin: 0; font-weight: 800; letter-spacing: -0.02em; line-height: 1.14; }
+p { margin: 0; }
+em { font-style: normal; font-weight: 700; color: var(--accent); }
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em; background: var(--surface-s); color: var(--accent);
+  padding: 2px 6px; border-radius: 6px; border: 1px solid var(--line);
+}
+
+.skip-link {
+  position: absolute; left: 12px; top: -60px;
+  background: var(--accent); color: var(--accent-ink);
+  padding: 10px 16px; border-radius: 10px; font-weight: 700;
+  z-index: 100; transition: top 0.18s var(--ease); text-decoration: none;
+}
+.skip-link:focus { top: 12px; }
+
+a:focus-visible, button:focus-visible {
+  outline: 3px solid var(--st-due);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 22px; width: 100%; }
+.eyebrow, .kicker {
+  font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent); font-weight: 700; margin: 0 0 10px;
+}
+.kicker { color: var(--muted); }
+
+/* ============================================================ READING-PROGRESS TRUNK */
+.progress {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 6px; z-index: 40;
+  background: var(--rail-dim); opacity: 0.55;
+}
+.progress__fill {
+  position: absolute; left: 0; top: 0; width: 100%; height: 0%;
+  background: linear-gradient(180deg, var(--rail), var(--accent));
+}
+/* lenticel dashes riding the progress trunk */
+.progress::after {
+  content: ""; position: absolute; left: -3px; width: 12px; height: 100%;
+  background-image:
+    linear-gradient(var(--dash), var(--dash)),
+    linear-gradient(var(--dash), var(--dash)),
+    linear-gradient(var(--dash), var(--dash)),
+    linear-gradient(var(--dash), var(--dash));
+  background-size: 12px 3px;
+  background-repeat: no-repeat;
+  background-position: 0 14%, 0 38%, 0 62%, 0 86%;
+  opacity: 0.7;
+}
+
+/* ============================================================ SCENES */
+.scene {
+  position: relative;
+  padding: clamp(64px, 12vh, 130px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.scene--hero {
+  min-height: 92vh; display: flex; align-items: center;
+  background:
+    radial-gradient(1100px 520px at 82% -12%, rgba(111,169,140,0.12), transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 88%, black) 0%, var(--bg) 100%);
+}
+@media (prefers-color-scheme: light) {
+  .scene--hero { background: radial-gradient(1000px 480px at 84% -10%, rgba(46,107,79,0.09), transparent 60%), var(--bg); }
+}
+.scene--timeline { background: var(--surface-s); }
+.scene--privacy { background:
+    radial-gradient(900px 500px at 12% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 55%),
+    var(--bg); }
+.scene--cta {
+  background:
+    radial-gradient(900px 520px at 50% 120%, rgba(111,169,140,0.16), transparent 60%),
+    var(--surface-s);
+  text-align: center;
+}
+
+/* ============================================================ HERO */
+.hero__title {
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  letter-spacing: -0.03em; margin: 12px 0 18px; max-width: 20ch;
+}
+.hero__lede { color: var(--muted); font-size: clamp(1.05rem, 2.2vw, 1.25rem); max-width: 56ch; }
+.hero__cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.hero__scrollhint {
+  margin-top: 46px; color: var(--muted); font-size: 0.86rem;
+  text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600;
+}
+.hero__arrow { display: inline-block; animation: bob 1.8s var(--ease) infinite; }
+@keyframes bob { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(5px);} }
+
+/* ============================================================ BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-size: 0.98rem; font-weight: 700;
+  padding: 13px 22px; border-radius: var(--radius-sm);
+  border: 1px solid transparent; cursor: pointer; text-decoration: none;
+  transition: transform 0.08s var(--ease), background 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow); }
+.btn--primary:hover { background: color-mix(in srgb, var(--accent) 88%, white); }
+.btn--ghost { background: var(--card); color: var(--ink); border-color: var(--line); }
+.btn--ghost:hover { border-color: var(--accent); }
+.btn--lg { font-size: 1.1rem; padding: 16px 34px; }
+
+/* ============================================================ TWO-COLUMN SCENES */
+.two {
+  display: grid; gap: clamp(28px, 5vw, 60px);
+  grid-template-columns: 1fr 1fr; align-items: center;
+}
+.two--rev .two__text { order: 2; }
+.two--rev .two__vis { order: 1; }
+@media (max-width: 760px) {
+  .two { grid-template-columns: 1fr; }
+  .two--rev .two__text { order: 1; }
+  .two--rev .two__vis { order: 2; }
+}
+.two__text h2 { font-size: clamp(1.5rem, 3.6vw, 2.15rem); margin-bottom: 16px; max-width: 18ch; }
+.two__text p { color: var(--muted); font-size: 1.04rem; margin-top: 14px; max-width: 46ch; }
+.two__text b { color: var(--ink); }
+
+/* ============================================================ WALL CHART (problem vis) */
+.wallchart {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 24px 26px;
+  box-shadow: var(--shadow); transform: rotate(-1.4deg);
+  max-width: 380px; margin: 0 auto; position: relative;
+}
+.wallchart__title {
+  font-weight: 800; font-size: 0.82rem; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--muted); margin-bottom: 14px;
+  border-bottom: 1px solid var(--line); padding-bottom: 10px;
+}
+.wallchart__rows { list-style: none; margin: 0; padding: 0; }
+.wallchart__rows li {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 8px 0; border-bottom: 1px dashed var(--line);
+  font-size: 0.92rem; color: var(--ink);
+}
+.wallchart__age { color: var(--muted); font-weight: 700; white-space: nowrap; }
+.wallchart__scribble {
+  margin-top: 16px; color: var(--st-over); font-weight: 700;
+  font-size: 0.95rem; line-height: 1.4; transform: rotate(-3deg);
+  text-align: center;
+}
+
+/* ============================================================ DEMO TIMELINE (solution) */
+.solve__intro { max-width: 62ch; margin-bottom: 34px; }
+.solve__intro h2 { font-size: clamp(1.5rem, 3.6vw, 2.2rem); margin-bottom: 14px; }
+.solve__lede { color: var(--muted); font-size: 1.06rem; }
+
+.demo {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 24px 24px 20px;
+  box-shadow: var(--shadow); max-width: 720px; margin: 0 auto;
+}
+.demo__dob {
+  display: inline-flex; align-items: baseline; gap: 10px;
+  background: var(--surface-s); border: 1px solid var(--line);
+  border-radius: 999px; padding: 8px 16px; margin-bottom: 22px;
+}
+.demo__dob-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 700; }
+.demo__dob-value { font-weight: 800; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+
+.tl { list-style: none; margin: 0; padding: 0; position: relative; }
+/* the birch trunk rail */
+.tl::before {
+  content: ""; position: absolute;
+  left: 15px; top: 8px; width: 4px; height: calc(100% - 16px);
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--rail), var(--rail-dim));
+  transform-origin: top;
+  transform: scaleY(0);
+  transition: transform 0.9s var(--ease);
+}
+.demo.is-live .tl::before { transform: scaleY(1); }
+
+.tl__dose {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "vaccine date" "age chip";
+  gap: 3px 12px;
+  align-items: baseline;
+  padding: 13px 14px 13px 48px;
+  margin: 8px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-s);
+  /* start hidden; revealed dose-by-dose */
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+.demo.is-live .tl__dose {
+  opacity: 1; transform: none;
+  transition-delay: calc(0.35s + var(--i) * 0.42s);
+}
+/* lenticel dash tick on the trunk */
+.tl__dash {
+  position: absolute; left: 6px; top: 18px;
+  width: 22px; height: 5px; border-radius: 2px;
+  background: var(--dash);
+  box-shadow: 0 0 0 3px var(--card);
+}
+.tl__dose[data-status="done"] .tl__dash { background: var(--st-done); }
+
+.tl__vaccine { grid-area: vaccine; font-weight: 700; font-size: 0.98rem; }
+.tl__age { grid-area: age; color: var(--muted); font-size: 0.84rem; }
+.tl__date {
+  grid-area: date; font-weight: 800; font-variant-numeric: tabular-nums;
+  font-size: 0.98rem; text-align: right; white-space: nowrap;
+}
+.tl__chip {
+  grid-area: chip; justify-self: end;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.76rem; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+  border: 1px solid;
+}
+.tl__glyph { font-weight: 900; }
+.tl__chip--done { color: var(--st-done); background: var(--st-done-bg); border-color: color-mix(in srgb, var(--st-done) 45%, transparent); }
+.tl__chip--due  { color: var(--st-due);  background: var(--st-due-bg);  border-color: color-mix(in srgb, var(--st-due) 45%, transparent); }
+.tl__chip--overdue { color: var(--st-over); background: var(--st-over-bg); border-color: color-mix(in srgb, var(--st-over) 45%, transparent); }
+.tl__chip--upcoming { color: var(--st-up); background: var(--st-up-bg); border-color: color-mix(in srgb, var(--st-up) 45%, transparent); }
+
+.demo__foot { margin-top: 16px; color: var(--muted); font-size: 0.82rem; }
+
+/* ============================================================ PRIVACY SHIELD */
+.shield {
+  max-width: 380px; margin: 0 auto; display: grid; gap: 14px;
+  justify-items: center; text-align: center;
+}
+.shield__device {
+  width: 100%; background: var(--card); border: 1px solid var(--accent);
+  border-radius: var(--radius); padding: 22px 18px; box-shadow: var(--shadow);
+  display: grid; gap: 6px;
+}
+.shield__badge { font-weight: 800; font-size: 1.1rem; color: var(--ink); }
+.shield__stays { font-size: 0.86rem; color: var(--accent); font-weight: 700; }
+.shield__arrow { position: relative; height: 46px; width: 100%; display: grid; place-items: center; }
+.shield__packet {
+  position: absolute; top: 4px; width: 14px; height: 14px; border-radius: 3px;
+  background: var(--st-up); left: 50%; margin-left: -7px;
+  animation: packet 2.6s var(--ease) infinite;
+}
+.shield__wall {
+  position: absolute; top: 20px; width: 68%; height: 4px; border-radius: 2px;
+  background: var(--st-over);
+}
+.shield__blocked {
+  position: absolute; top: 26px; font-size: 0.74rem; font-weight: 800;
+  color: var(--st-over); text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--st-over-bg); padding: 2px 8px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--st-over) 45%, transparent);
+}
+@keyframes packet {
+  0% { top: 4px; opacity: 1; }
+  55% { top: 12px; opacity: 1; }
+  70% { top: 12px; opacity: 0.3; transform: scale(0.7); }
+  100% { top: 12px; opacity: 0; transform: scale(0.4); }
+}
+.shield__cloud {
+  color: var(--muted); font-size: 0.86rem; font-weight: 600;
+  opacity: 0.6; margin-top: 2px;
+}
+.shield__csp {
+  margin-top: 8px; font-size: 0.92rem; font-weight: 700;
+}
+
+/* ============================================================ FEATURE CARDS */
+.tour__intro { text-align: center; margin-bottom: 40px; }
+.tour__intro h2 { font-size: clamp(1.5rem, 3.6vw, 2.15rem); }
+.cards {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 22px 24px;
+}
+.card h3 { font-size: 1.12rem; margin: 14px 0 8px; }
+.card p { color: var(--muted); font-size: 0.94rem; }
+.card b { color: var(--ink); }
+.card__mark { display: flex; align-items: center; gap: 8px; min-height: 34px; }
+/* IAP/NIS segmented mark */
+.seg {
+  font-size: 0.78rem; font-weight: 700; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface-s); color: var(--muted);
+}
+.seg--on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.card__mark--chips { flex-wrap: wrap; }
+/* mini clinic-sheet mark */
+.card__mark--sheet { position: relative; gap: 6px; flex-direction: column; align-items: flex-start; }
+.sheet-line { display: block; height: 4px; width: 78%; border-radius: 2px; background: var(--rail-dim); }
+.sheet-line--short { width: 52%; }
+.sheet-check {
+  position: absolute; right: 6px; top: 0; width: 20px; height: 20px; border-radius: 5px;
+  border: 2px solid var(--st-done); background: var(--st-done-bg);
+}
+/* offline mark */
+.card__mark--offline { align-items: center; }
+.offline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--st-up); box-shadow: 0 0 0 4px var(--st-up-bg); }
+.offline-word { font-weight: 800; letter-spacing: 0.02em; color: var(--muted); }
+
+/* ============================================================ CTA BOX */
+.ctabox { max-width: 640px; }
+.ctabox__mark { width: 60px; height: 60px; margin: 0 auto 18px; display: block; }
+.ctabox h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 14px; }
+.ctabox__lede { color: var(--muted); font-size: 1.08rem; max-width: 46ch; margin: 0 auto 28px; }
+.ctabox__url { margin-top: 16px; color: var(--muted); font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+
+/* ============================================================ FOOTER */
+.foot { border-top: 1px solid var(--line); background: var(--surface-s); }
+.foot__inner { padding: 28px 22px 44px; }
+.foot__disclaimer { color: var(--ink); font-size: 0.88rem; max-width: 82ch; }
+.foot__disclaimer strong { color: var(--st-over); }
+.foot__meta { margin-top: 16px; color: var(--muted); font-size: 0.82rem; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.foot__meta a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.foot__meta a:hover { text-decoration: underline; }
+.foot__dot { margin: 0 6px; }
+
+/* ============================================================ SCROLL REVEAL */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* ============================================================ MOTION — reduced */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+  /* everything must be legible in its final state without any script */
+  .reveal { opacity: 1; transform: none; }
+  .tl::before { transform: scaleY(1); }
+  .tl__dose { opacity: 1; transform: none; }
+  .hero__arrow { animation: none; }
+  .shield__packet { display: none; }
+}
+
+/* No-JS / pre-hydration fallback: if the reveal never fires, still show content.
+   app.js adds .js to <html>; without it, force the visible state. */
+html:not(.js) .reveal { opacity: 1; transform: none; }
+html:not(.js) .tl::before { transform: scaleY(1); }
+html:not(.js) .tl__dose { opacity: 1; transform: none; }
